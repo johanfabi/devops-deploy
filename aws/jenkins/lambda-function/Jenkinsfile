@@ -1,10 +1,10 @@
 pipeline {
 
-    agent any
-
-    docker {
-        image 'amazon/aws-cli'
-        args '-u root'
+    agent {
+        docker {
+            image 'amazon/aws-cli'
+            args '-u root'
+        }
     }
 
     parameters {
