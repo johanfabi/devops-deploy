@@ -1,0 +1,1 @@
+FROM --platform=linux/amd64 amazon/aws-cli
