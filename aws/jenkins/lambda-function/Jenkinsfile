@@ -3,7 +3,6 @@ pipeline {
     agent {
         dockerContainer {
             image 'amazon/aws-cli'
-            args '-u root'
         }
     }
 
