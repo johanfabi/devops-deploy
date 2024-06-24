@@ -1,8 +1,8 @@
 pipeline {
 
     agent {
-        dockerContainer {
-            dockerfile "Dockerfile"
+        docker {
+            image 'amazon/aws-cli:arm64'
         }
     }
 
