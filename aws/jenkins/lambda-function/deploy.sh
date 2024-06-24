@@ -10,7 +10,7 @@ RUNTIME="python3.8"
 REGION="us-east-1"
 
 # Empaquetar la función Lambda
-zip -r $ZIP_FILE . -x "*.git*" "*tests*"
+zip -r $ZIP_FILE . -x "*.git*" "*tests*" "*trust-policy.json" "deploy.sh" "Jenkinsfile"
 
 # Desplegar la función Lambda
 aws lambda update-function-code --function-name $FUNCTION_NAME --zip-file fileb://$ZIP_FILE --region $REGION || \
