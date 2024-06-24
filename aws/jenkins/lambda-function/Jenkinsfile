@@ -1,7 +1,9 @@
 pipeline {
 
     agent {
-        dockerfile true
+        dockerContainer {
+            dockerfile "Dockerfile"
+        }
     }
 
     parameters {
