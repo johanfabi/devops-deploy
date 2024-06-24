@@ -2,6 +2,11 @@ pipeline {
 
     agent any
 
+    docker {
+        image 'amazon/aws-cli'
+        args '-u root'
+    }
+
     parameters {
         string(name: 'LAMBDA_NAME', description: 'Inserte el nombre de su Lambda Function.')
         string(name: 'LAMBDA_DIR', description: 'Directorio con el código de la Lambda Function.')
