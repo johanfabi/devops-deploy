@@ -3,11 +3,11 @@ pipeline {
     agent any
 
     parameters {
+        choice(name: 'DEPLOY_ACTION', choices: ['deploy', 'update', 'delete'], description: 'Seleccione la acción a realizar.')
         string(name: 'LAMBDA_NAME', description: 'Nombre de la Lambda Function.', defaultValue: 'hello-world')
         string(name: 'LAMBDA_DIR', description: 'Directorio con el código fuente.', defaultValue: 'aws/jenkins/lambda-function')
         choice(name: 'RUNTIME', choices: ['python3.8', 'python3.12', 'nodejs12.x'], description: 'Seleccione el lenguaje de programación.')
         choice(name: 'REGION', choices: ['us-east-1', 'us-east-2', 'us-west-1', 'us-west-2'], description: 'Seleccione la región.')
-
     }
 
     environment {
@@ -33,7 +33,7 @@ pipeline {
             steps {
                 script {
                     print '########## Empaquetando Lambda Function... ##########'
-                    sh 'cd $LAMBDA_DIR && if [ -f $ZIP_FILE ]; then rm $ZIP_FILE; fi && zip -r $ZIP_FILE main.py requeriments.txt'
+                    sh 'cd $LAMBDA_DIR && rm -f *.zip && zip -r $ZIP_FILE main.py requeriments.txt'
                     sh 'ls -lt $LAMBDA_DIR'
                 }
             }
@@ -41,11 +41,20 @@ pipeline {
         stage('Desplegardo Lambda Function') {
             steps {
                 script {
-                    print '########## Desplegardo Lambda Function... ##########'
-                    sh '''
-                    aws lambda update-function-code --function-name $LAMBDA_NAME --zip-file fileb://$LAMBDA_DIR/$ZIP_FILE --region $REGION || \
-                    aws lambda create-function --function-name $LAMBDA_NAME --zip-file fileb://$LAMBDA_DIR/$ZIP_FILE --handler $HANDLER --runtime $RUNTIME --role $ROLE --region $REGION
-                    '''
+                    case DEPLOY_ACTION:
+                    when 'deploy'
+                        sh '''
+                            aws lambda create-function --function-name $LAMBDA_NAME --zip-file fileb://$LAMBDA_DIR/$ZIP_FILE --handler $HANDLER --runtime $RUNTIME --role $ROLE --region $REGION
+                        '''
+                    when 'update'
+                        sh '''
+                            aws lambda update-function-code --function-name $LAMBDA_NAME --zip-file fileb://$LAMBDA_DIR/$ZIP_FILE --region $REGION
+                        '''
+                    when 'delete'
+                        sh '''
+                            aws lambda delete-function --function-name $LAMBDA_NAME --region $REGION
+                        '''
+                    break
                 }
             }
         }
