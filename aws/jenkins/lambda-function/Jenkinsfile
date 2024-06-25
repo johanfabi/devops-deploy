@@ -33,7 +33,7 @@ pipeline {
             steps {
                 script {
                     print '########## Empaquetando Lambda Function... ##########'
-                    sh 'cd $LAMBDA_DIR && rm -f *.zip && zip -r $ZIP_FILE main.py requeriments.txt'
+                    sh 'cd $LAMBDA_DIR && rm -f *.zip && zip -r $ZIP_FILE main.py requirements.txt .env'
                     sh 'ls -lt $LAMBDA_DIR'
                 }
             }
