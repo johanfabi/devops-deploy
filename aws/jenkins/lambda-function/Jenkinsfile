@@ -43,8 +43,8 @@ pipeline {
                 script {
                     print '########## Desplegardo Lambda Function... ##########'
                     sh '''
-                    aws lambda update-function-code --function-name $LAMBDA_NAME --zip-file fileb://$LAMBDA_DIR$ZIP_FILE --region $REGION || \
-                    aws lambda create-function --function-name $LAMBDA_NAME --zip-file fileb://$LAMBDA_DIR$ZIP_FILE --handler $HANDLER --runtime $RUNTIME --role $ROLE --region $REGION
+                    aws lambda update-function-code --function-name $LAMBDA_NAME --zip-file fileb://$LAMBDA_DIR/$ZIP_FILE --region $REGION || \
+                    aws lambda create-function --function-name $LAMBDA_NAME --zip-file fileb://$LAMBDA_DIR/$ZIP_FILE --handler $HANDLER --runtime $RUNTIME --role $ROLE --region $REGION
                     '''
                 }
             }
