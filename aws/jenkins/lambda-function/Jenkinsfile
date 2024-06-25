@@ -1,12 +1,6 @@
 pipeline {
 
-    agent {
-        docker {
-            image 'amazon/aws-cli:arm64'
-            args '-u root'
-            reuseNode true
-        }
-    }
+    agent any
 
     parameters {
         string(name: 'LAMBDA_NAME', description: 'Inserte el nombre de su Lambda Function.')
