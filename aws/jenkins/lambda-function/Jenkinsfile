@@ -3,15 +3,20 @@ pipeline {
     agent any
 
     parameters {
-        string(name: 'LAMBDA_NAME', description: 'Inserte el nombre de su Lambda Function.')
-        string(name: 'LAMBDA_DIR', description: 'Directorio con el código de la Lambda Function.')
+        choice(name: 'DEPLOY_ACTION', choices: ['deploy', 'update', 'delete'], description: 'Seleccione la acción a realizar.')
+        string(name: 'LAMBDA_NAME', description: 'Nombre de la Lambda Function.', defaultValue: 'hello-world')
+        string(name: 'LAMBDA_DIR', description: 'Directorio con el código fuente.', defaultValue: 'aws/jenkins/lambda-function')
+        choice(name: 'RUNTIME', choices: ['python3.8', 'python3.12', 'nodejs12.x'], description: 'Seleccione el lenguaje de programación.')
+        choice(name: 'REGION', choices: ['us-east-1', 'us-east-2', 'us-west-1', 'us-west-2'], description: 'Seleccione la región.')
+        string(name: 'HANDLER', description: 'Nombre de la función de entrada.', defaultValue: 'main.lambda_handler')
     }
 
     environment {
         AWS_ACCESS_KEY_ID = credentials('aws_access_key_id')
         AWS_SECRET_ACCESS_KEY = credentials('aws_secret_access_key')
         AWS_DEFAULT_REGION    = 'us-east-1'
-        ZIP_FILE= $LAMBDA_NAME + '.zip'
+        ZIP_FILE= "${LAMBDA_NAME}.zip"
+        ROLE= credentials('aws_lambda_role')
     }
 
     stages {
@@ -19,8 +24,8 @@ pipeline {
             steps {
                 script {
                     print '########## Configurando AWS CLI... ##########'
-                    sh 'aws --version'
-                    sh 'ls -lt $WORKSPACE/$LAMBDA_DIR'
+                    sh 'printenv'
+                    sh 'ls -lt $LAMBDA_DIR'
                 }
             }
         }
@@ -28,7 +33,37 @@ pipeline {
             steps {
                 script {
                     print '########## Empaquetando Lambda Function... ##########'
-                    sh 'zip -r $ZIP_FILE $WORKSPACE/$LAMBDA_DIR . -x "*.git*" "*tests*" "*trust-policy.json" "deploy.sh"'
+                    sh 'cd $LAMBDA_DIR && rm -f *.zip && zip -r $ZIP_FILE main.py requirements.txt'
+                    sh 'ls -lt $LAMBDA_DIR'
+                }
+            }
+        }
+        stage('Ejecutar Lambda Function') {
+            steps {
+                script {
+                    switch(DEPLOY_ACTION) {
+                        case "deploy":
+                            print 'Desplegando Lambda Function...'
+                            sh '''
+                                aws lambda create-function --function-name $LAMBDA_NAME --zip-file fileb://$LAMBDA_DIR/$ZIP_FILE --handler $HANDLER --runtime $RUNTIME --role $ROLE --region $REGION
+                            '''
+                            break
+                        case "update":
+                            print '########## Actualizando Lambda Function... ##########'
+                            sh '''
+                                aws lambda update-function-code --function-name $LAMBDA_NAME --zip-file fileb://$LAMBDA_DIR/$ZIP_FILE --region $REGION
+                            '''
+                            break
+                        case "delete":
+                            print '########## Eliminando Lambda Function... ##########'
+                            sh '''
+                                aws lambda delete-function --function-name $LAMBDA_NAME --region $REGION
+                            '''                           
+                            break
+                        default:
+                            print '########## Acción no soportada... ##########'
+                            break
+                    }
                 }
             }
         }
