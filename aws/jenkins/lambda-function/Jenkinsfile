@@ -3,9 +3,9 @@ pipeline {
     agent any
 
     parameters {
-        string(name: 'LAMBDA_NAME', description: 'Nombre de la Lambda Function.')
-        string(name: 'LAMBDA_DIR', description: 'Directorio con el código fuente.')
-        choice(name: 'RUNTIME', choices: ['nodejs12.x', 'python3.8', 'python3.12'], description: 'Seleccione el lenguaje de programación.')
+        string(name: 'LAMBDA_NAME', description: 'Nombre de la Lambda Function.', defaultValue: 'hello-world')
+        string(name: 'LAMBDA_DIR', description: 'Directorio con el código fuente.', defaultValue: 'aws/jenkins/lambda-function')
+        choice(name: 'RUNTIME', choices: ['python3.8', 'python3.12', 'nodejs12.x'], description: 'Seleccione el lenguaje de programación.')
         choice(name: 'REGION', choices: ['us-east-1', 'us-east-2', 'us-west-1', 'us-west-2'], description: 'Seleccione la región.')
 
     }
