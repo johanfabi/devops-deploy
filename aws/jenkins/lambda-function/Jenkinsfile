@@ -33,6 +33,7 @@ pipeline {
             steps {
                 script {
                     print '########## Empaquetando Lambda Function... ##########'
+                    sh 'if [ -f $ZIP_FILE ]; then rm $ZIP_FILE; fi'
                     sh 'zip -r $ZIP_FILE $LAMBDA_DIR/main.py $LAMBDA_DIR/requeriments.txt'
                     sh 'ls -lt $WORKSPACE'
                 }
