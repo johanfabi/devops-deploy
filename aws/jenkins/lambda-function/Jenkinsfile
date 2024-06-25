@@ -4,7 +4,11 @@ pipeline {
 
     parameters {
         string(name: 'LAMBDA_NAME', description: 'Inserte el nombre de su Lambda Function.')
-        string(name: 'LAMBDA_DIR', description: 'Directorio con el código de la Lambda Function.')
+        string(name: 'LAMBDA_DIR', description: 'Directorio con el código fuente.')
+        string(name: 'FUNCTION_NAME', description: 'Nombre de la Lambda Function.')
+        choice(name: 'RUNTIME', choices: ['nodejs12.x', 'python3.8', 'python3.12'], description: 'Seleccione el lenguaje de programación.')
+        choice(name: 'REGION', choices: ['us-east-1', 'us-east-2', 'us-west-1', 'us-west-2'], description: 'Seleccione la región.')
+
     }
 
     environment {
@@ -12,6 +16,8 @@ pipeline {
         AWS_SECRET_ACCESS_KEY = credentials('aws_secret_access_key')
         AWS_DEFAULT_REGION    = 'us-east-1'
         ZIP_FILE= "${LAMBDA_NAME}.zip"
+        ROLE="arn:aws:iam::810237447559:role/lambda-ex"
+        HANDLER="lambda_function.lambda_handler"
     }
 
     stages {
@@ -31,6 +37,17 @@ pipeline {
                     sh 'zip -r $ZIP_FILE $WORKSPACE/$LAMBDA_DIR . -x "*.git*" "*tests*" "*trust-policy.json" "deploy.sh" "Jenkinsfile"'
                     sh 'ls -lt $WORKSPACE/$LAMBDA_DIR'
                     sh 'ls -lt $WORKSPACE'
+                }
+            }
+        }
+        stage('Desplegardo Lambda Function') {
+            steps {
+                script {
+                    print '########## Desplegardo Lambda Function... ##########'
+                    sh '''
+                    aws lambda update-function-code --function-name $LAMBDA_NAME --zip-file fileb://$ZIP_FILE --region $REGION || \
+                    aws lambda create-function --function-name $LAMBDA_NAME --zip-file fileb://$ZIP_FILE --handler $HANDLER --runtime $RUNTIME --role $ROLE --region $REGION
+                    '''
                 }
             }
         }
