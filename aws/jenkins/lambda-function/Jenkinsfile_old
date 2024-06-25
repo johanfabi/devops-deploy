@@ -1,0 +1,35 @@
+pipeline {
+
+    parameters {
+        string(name: 'LAMBDA_NAME', description: 'Inserte el nombre de su Lambda Function.')
+        string(name: 'LAMBDA_DIR', description: 'Directorio con el código de la Lambda Function.')
+    }
+
+    environment {
+        AWS_ACCESS_KEY_ID = credentials('aws_access_key_id')
+        AWS_SECRET_ACCESS_KEY = credentials('aws_secret_access_key')
+        AWS_DEFAULT_REGION    = 'us-east-1'
+        ZIP_FILE= '$LAMBDA_NAME.zip'
+    }
+
+    stages {
+        stage('Configurando AWS CLI') {
+            steps {
+                script {
+                    print '########## Configurando AWS CLI... ##########'
+                    sh 'aws --version'
+                    sh 'ls -lt $WORKSPACE/$LAMBDA_DIR'
+                }
+            }
+        }
+        stage('Empaquetando Lambda Function') {
+            steps {
+                script {
+                    print '########## Empaquetando Lambda Function... ##########'
+                    sh 'zip -r $ZIP_FILE $WORKSPACE/$LAMBDA_DIR . -x "*.git*" "*tests*" "*trust-policy.json" "deploy.sh" "Jenkinsfile"'
+                    sh 'ls -lt $WORKSPACE/$LAMBDA_DIR'
+                }
+            }
+        }
+    }
+}

@@ -35,7 +35,7 @@ pipeline {
                     print '########## Empaquetando Lambda Function... ##########'
                     sh 'cd $WORKSPACE/$LAMBDA_DIR'
                     sh 'if [ -f $ZIP_FILE ]; then rm $ZIP_FILE; fi'
-                    sh 'zip -r $ZIP_FILE main.py requeriments.txt'
+                    sh 'cd $LAMBDA_DIR && zip -r ../$ZIP_FILE main.py requeriments.txt'
                     sh 'ls -lt $WORKSPACE'
                 }
             }
