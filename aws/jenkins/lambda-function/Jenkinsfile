@@ -3,9 +3,8 @@ pipeline {
     agent any
 
     parameters {
-        string(name: 'LAMBDA_NAME', description: 'Inserte el nombre de su Lambda Function.')
+        string(name: 'LAMBDA_NAME', description: 'Nombre de la Lambda Function.')
         string(name: 'LAMBDA_DIR', description: 'Directorio con el código fuente.')
-        string(name: 'FUNCTION_NAME', description: 'Nombre de la Lambda Function.')
         choice(name: 'RUNTIME', choices: ['nodejs12.x', 'python3.8', 'python3.12'], description: 'Seleccione el lenguaje de programación.')
         choice(name: 'REGION', choices: ['us-east-1', 'us-east-2', 'us-west-1', 'us-west-2'], description: 'Seleccione la región.')
 
@@ -34,8 +33,7 @@ pipeline {
             steps {
                 script {
                     print '########## Empaquetando Lambda Function... ##########'
-                    sh 'zip -r $ZIP_FILE $WORKSPACE/$LAMBDA_DIR . -x "*.git*" "*tests*" "*trust-policy.json" "deploy.sh" "Jenkinsfile"'
-                    sh 'ls -lt $WORKSPACE/$LAMBDA_DIR'
+                    sh 'zip -r $ZIP_FILE $LAMBDA_DIR . -x "*.git*" "*tests*" "*trust-policy.json" "deploy.sh" "Jenkinsfile"'
                     sh 'ls -lt $WORKSPACE'
                 }
             }
