@@ -38,23 +38,32 @@ pipeline {
                 }
             }
         }
-        stage('Desplegardo Lambda Function') {
+        stage('Ejecutar Lambda Function') {
             steps {
                 script {
-                    case DEPLOY_ACTION:
-                    when 'deploy'
-                        sh '''
-                            aws lambda create-function --function-name $LAMBDA_NAME --zip-file fileb://$LAMBDA_DIR/$ZIP_FILE --handler $HANDLER --runtime $RUNTIME --role $ROLE --region $REGION
-                        '''
-                    when 'update'
-                        sh '''
-                            aws lambda update-function-code --function-name $LAMBDA_NAME --zip-file fileb://$LAMBDA_DIR/$ZIP_FILE --region $REGION
-                        '''
-                    when 'delete'
-                        sh '''
-                            aws lambda delete-function --function-name $LAMBDA_NAME --region $REGION
-                        '''
-                    break
+                    switch(value: DEPLOY_ACTION) {
+                        case "deploy":
+                            print 'Desplegando Lambda Function...'
+                            sh '''
+                                aws lambda create-function --function-name $LAMBDA_NAME --zip-file fileb://$LAMBDA_DIR/$ZIP_FILE --handler $HANDLER --runtime $RUNTIME --role $ROLE --region $REGION
+                            '''
+                            break
+                        case "update":
+                            print '########## Actualizando Lambda Function... ##########'
+                            sh '''
+                                aws lambda update-function-code --function-name $LAMBDA_NAME --zip-file fileb://$LAMBDA_DIR/$ZIP_FILE --region $REGION
+                            '''
+                            break
+                        case "delete":
+                            print '########## Eliminando Lambda Function... ##########'
+                            sh '''
+                                aws lambda delete-function --function-name $LAMBDA_NAME --region $REGION
+                            '''                           
+                            break
+                        default:
+                            print '########## Acción no soportada... ##########'
+                            break
+                    }
                 }
             }
         }
