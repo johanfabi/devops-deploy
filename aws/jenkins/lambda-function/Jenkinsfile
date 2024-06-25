@@ -41,7 +41,7 @@ pipeline {
         stage('Ejecutar Lambda Function') {
             steps {
                 script {
-                    switch(value: DEPLOY_ACTION) {
+                    switch(DEPLOY_ACTION) {
                         case "deploy":
                             print 'Desplegando Lambda Function...'
                             sh '''
