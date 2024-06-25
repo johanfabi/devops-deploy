@@ -33,7 +33,7 @@ pipeline {
             steps {
                 script {
                     print '########## Empaquetando Lambda Function... ##########'
-                    sh 'zip -r $ZIP_FILE $LAMBDA_DIR . -x "*.git*" "*tests*" "*trust-policy.json" "deploy.sh" "Jenkinsfile"'
+                    sh 'zip -r $ZIP_FILE $LAMBDA_DIR/main.py $LAMBDA_DIR/requeriments.txt'
                     sh 'ls -lt $WORKSPACE'
                 }
             }
