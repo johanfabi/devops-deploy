@@ -8,6 +8,7 @@ pipeline {
         string(name: 'LAMBDA_DIR', description: 'Directorio con el código fuente.', defaultValue: 'aws/jenkins/lambda-function')
         choice(name: 'RUNTIME', choices: ['python3.8', 'python3.12', 'nodejs12.x'], description: 'Seleccione el lenguaje de programación.')
         choice(name: 'REGION', choices: ['us-east-1', 'us-east-2', 'us-west-1', 'us-west-2'], description: 'Seleccione la región.')
+        string(name: 'HANDLER', description: 'Nombre de la función de entrada.', defaultValue: 'main.lambda_handler')
     }
 
     environment {
@@ -15,8 +16,7 @@ pipeline {
         AWS_SECRET_ACCESS_KEY = credentials('aws_secret_access_key')
         AWS_DEFAULT_REGION    = 'us-east-1'
         ZIP_FILE= "${LAMBDA_NAME}.zip"
-        ROLE="arn:aws:iam::810237447559:role/lambda-ex"
-        HANDLER="lambda_function.lambda_handler"
+        ROLE= credentials('aws_lambda_role')
     }
 
     stages {
