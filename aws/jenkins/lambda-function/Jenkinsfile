@@ -33,7 +33,7 @@ pipeline {
             steps {
                 script {
                     print '########## Empaquetando Lambda Function... ##########'
-                    sh 'cd $LAMBDA_DIR && sh && if [ -f $ZIP_FILE ]; then rm $ZIP_FILE; fi && zip -r $ZIP_FILE main.py requeriments.txt'
+                    sh 'cd $LAMBDA_DIR && if [ -f $ZIP_FILE ]; then rm $ZIP_FILE; fi && zip -r $ZIP_FILE main.py requeriments.txt'
                     sh 'ls -lt $LAMBDA_DIR'
                 }
             }
@@ -43,8 +43,8 @@ pipeline {
                 script {
                     print '########## Desplegardo Lambda Function... ##########'
                     sh '''
-                    aws lambda update-function-code --function-name $LAMBDA_NAME --zip-file fileb://$ZIP_FILE --region $REGION || \
-                    aws lambda create-function --function-name $LAMBDA_NAME --zip-file fileb://$ZIP_FILE --handler $HANDLER --runtime $RUNTIME --role $ROLE --region $REGION
+                    aws lambda update-function-code --function-name $LAMBDA_NAME --zip-file fileb://$LAMBDA_DIR$ZIP_FILE --region $REGION || \
+                    aws lambda create-function --function-name $LAMBDA_NAME --zip-file fileb://$LAMBDA_DIR$ZIP_FILE --handler $HANDLER --runtime $RUNTIME --role $ROLE --region $REGION
                     '''
                 }
             }
